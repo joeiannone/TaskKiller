@@ -12,9 +12,8 @@ namespace TaskKiller.ViewModel
     public class ProcessVM : INotifyPropertyChanged
     {
 
-        private Process _process;
+        private Process? _process;
         public event PropertyChangedEventHandler? PropertyChanged;
-
         public KillCommand KillCommand { get; set; }
 
         public ProcessVM() 
@@ -29,7 +28,7 @@ namespace TaskKiller.ViewModel
             } 
             set
             {
-                _process = value;
+                _process = value;   
                 OnPropertyChanged(nameof(process));
             }
         }

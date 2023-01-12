@@ -24,22 +24,32 @@ namespace TaskKiller
         public KillWindow(Process process)
         {
             InitializeComponent();
-
-            this.Title = $"Kill {process.Id} - {process.ProcessName}";
-            this.DataContext = new ProcessVM { process = process };
-
-            process.EnableRaisingEvents = true;
-            process.Exited += new EventHandler(HandleProcessExit);
+            try
+            {
+                this.Title = $"Kill {process.Id} - {process.ProcessName}";
+                this.DataContext = new ProcessVM { process = process };
+                process.EnableRaisingEvents = true;
+                process.Exited += new EventHandler(HandleProcessExit);
+            }
+            catch (Exception ex)
+            {
+                this.DataContext = new ProcessVM { process = null };
+            }
+            
             
         }
 
         private void HandleProcessExit(object sender, System.EventArgs e)
         {
+            CloseWindow();
+        }
+
+        private void CloseWindow()
+        {
             this.Dispatcher.Invoke(() =>
             {
                 this.Close();
             });
-            
         }
     }
 }

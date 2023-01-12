@@ -122,7 +122,7 @@ namespace TaskKiller.ViewModel
         {
             processes = new List<Process>(
                 Process.GetProcesses()
-                .Where(p => p.ProcessName.ToLower().Contains(_searchString.ToLower()))); /*.OrderBy(p => p.GetType().GetProperty(sortColumn).GetValue(p)).ToList();*/
+                .Where(p => p.ProcessName.ToLower().Contains(_searchString.ToLower()) )); /*.OrderBy(p => p.GetType().GetProperty(sortColumn).GetValue(p)).ToList();*/
         }
 
         public void KillProcess(Process process)

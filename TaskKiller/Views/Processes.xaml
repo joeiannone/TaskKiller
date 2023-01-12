@@ -48,7 +48,8 @@
                 <GridView>
                     <GridViewColumn DisplayMemberBinding="{Binding Id}" Header="Id" />
                     <GridViewColumn DisplayMemberBinding="{Binding ProcessName}" Header="Process Name" />
-                    <GridViewColumn DisplayMemberBinding="{Binding MainWindowTitle}" Header="Title" />
+                    <GridViewColumn DisplayMemberBinding="{Binding MainWindowTitle}" Width="180" Header="Title" />
+                    <GridViewColumn DisplayMemberBinding="{Binding PriorityClass}" Header="Priority Class" />
                     <GridViewColumn>
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>

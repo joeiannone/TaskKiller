@@ -14,13 +14,14 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <TextBlock Grid.Row="0" Text="{Binding process.Id}"/>
-        <TextBlock Grid.Row="1" Text="{Binding process.ProcessName}"/>
+        <TextBlock Grid.Row="1" Text="{Binding process.Id}"/>
+        <TextBlock Grid.Row="2" Text="{Binding process.ProcessName}"/>
         <Button 
             Content="Kill Process"
             Command="{Binding KillCommand}"
-            Grid.Row="2"
+            Grid.Row="3"
             Width="200"/>
     </Grid>
 </Window>
