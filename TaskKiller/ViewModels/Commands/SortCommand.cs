@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace TaskKiller.ViewModel.Commands
+namespace TaskKiller.ViewModels.Commands
 {
     public class SortCommand : ICommand
     {
@@ -31,7 +32,8 @@ namespace TaskKiller.ViewModel.Commands
 
         public void Execute(object? parameter)
         {
-            // TODO: VM.
+            Debug.WriteLine($"SORT {parameter.ToString()}");
+            VM.UpdateSort(parameter.ToString());
         }
     }
 }

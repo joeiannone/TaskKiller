@@ -3,13 +3,16 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:vm="clr-namespace:TaskKiller.ViewModel"
+      xmlns:vm="clr-namespace:TaskKiller.ViewModels"
       xmlns:local="clr-namespace:TaskKiller"
+      xmlns:vc="clr-namespace:TaskKiller.Views.Converters" 
+      xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Title="Processes">
     <Page.Resources>
         <vm:ProcessesVM x:Key="vm"/>
+        <vc:ByteStringConverter x:Key="ByteStringConverter" />
     </Page.Resources>
     <Grid DataContext="{StaticResource vm}">
         <Grid.ColumnDefinitions>
@@ -23,37 +26,26 @@
         </Grid.RowDefinitions>
         <Label Content="Search" Margin="5"/>
         <TextBox Grid.Row="1" Name="SearchString_TextBox" Text="{Binding searchString, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
-        <ComboBox Grid.Row="2" SelectedItem="{Binding sortColumn, Mode=TwoWay}" ItemsSource="{Binding columns}"/>
-        <TextBlock x:Name = "ProcessCount" Grid.Row="0" Text="{Binding processCount}" />
-        <!--
-        <DataGrid x:Name="ProcessDataGrid" Grid.Row="2" ItemsSource="{Binding processes}" IsReadOnly="True" AutoGenerateColumns="False">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Process Id"  Binding="{Binding Id}"/>
-                <DataGridTextColumn Header="Process Name" Binding="{Binding ProcessName}"/>
-                <DataGridTemplateColumn>
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Button Click="KillTask_Click">Kill</Button>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-
-            </DataGrid.Columns>
-        </DataGrid>
-        -->
-        
-        
+        <TextBlock x:Name="ProcessCount" Grid.Row="2" Text="{Binding processCount}" />
         <ListView ItemsSource="{Binding processes}" Grid.Row="3">
+            
             <ListView.View>
                 <GridView>
-                    <GridViewColumn DisplayMemberBinding="{Binding Id}" Header="Id" />
-                    <GridViewColumn DisplayMemberBinding="{Binding ProcessName}" Header="Process Name" />
+                    <GridViewColumn DisplayMemberBinding="{Binding Id}">
+                        <GridViewColumnHeader Content="Id" Command="{Binding SortCommand}" CommandParameter="Id"/>
+                    </GridViewColumn>
+                    <GridViewColumn DisplayMemberBinding="{Binding ProcessName}">
+                        <GridViewColumnHeader Content="Process Name" Command="{Binding SortCommand}" CommandParameter="ProcessName"/>
+                    </GridViewColumn>
                     <GridViewColumn DisplayMemberBinding="{Binding MainWindowTitle}" Width="180" Header="Title" />
-                    <GridViewColumn DisplayMemberBinding="{Binding PriorityClass}" Header="Priority Class" />
-                    <GridViewColumn>
+                    <GridViewColumn DisplayMemberBinding="{Binding PriorityClass}">
+                        <GridViewColumnHeader Content="Priority Class"/>
+                    </GridViewColumn>
+                    <GridViewColumn DisplayMemberBinding="{Binding WorkingSet64 , Converter={StaticResource ByteStringConverter}, ConverterParameter=MB, StringFormat={}{0} MB}" Header="Working Set" />
+                    <GridViewColumn Width="100">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Button Click="KillTask_Click" Tag="{Binding Id}">Kill</Button>
+                                <Button Click="KillTask_Click" Tag="{Binding Id}" Padding="10, 1" Margin="2">Kill</Button>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>

@@ -5,9 +5,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TaskKiller.ViewModel.Commands;
+using TaskKiller.ViewModels.Commands;
 
-namespace TaskKiller.ViewModel
+namespace TaskKiller.ViewModels
 {
     public class ProcessVM : INotifyPropertyChanged
     {
@@ -21,9 +21,9 @@ namespace TaskKiller.ViewModel
             KillCommand = new KillCommand(this);
         }
 
-        public Process process { 
+        public Process? process { 
             get 
-            { 
+            {
                 return _process; 
             } 
             set
@@ -33,7 +33,29 @@ namespace TaskKiller.ViewModel
             }
         }
 
-        
+
+        public event EventHandler ProcessKilled;
+
+        public virtual void OnProcessKilled(object sender, EventArgs e)
+        {
+            ProcessKilled?.Invoke(this, e);
+        }
+
+        public void KillProcess()
+        {
+            if (process != null)
+            {
+                //process.
+                process.Kill();
+                //process.Exited += new EventHandler(OnProcessKilled);
+                
+            }
+            
+        }
+
+
+
+
 
         private void OnPropertyChanged(string propertyName)
         {

@@ -12,7 +12,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using TaskKiller.ViewModel;
+using TaskKiller.ViewModels;
 
 namespace TaskKiller
 {
@@ -21,17 +21,19 @@ namespace TaskKiller
     /// </summary>
     public partial class KillWindow : Window
     {
-        public KillWindow(Process process)
+        public KillWindow(Process? process)
         {
             InitializeComponent();
-            try
+
+            if (process != null)
             {
+                Debug.WriteLine(typeof(Process).GetProperty("Id").GetValue(process, null));
                 this.Title = $"Kill {process.Id} - {process.ProcessName}";
                 this.DataContext = new ProcessVM { process = process };
                 process.EnableRaisingEvents = true;
                 process.Exited += new EventHandler(HandleProcessExit);
             }
-            catch (Exception ex)
+            else
             {
                 this.DataContext = new ProcessVM { process = null };
             }
@@ -41,6 +43,7 @@ namespace TaskKiller
 
         private void HandleProcessExit(object sender, System.EventArgs e)
         {
+            System.Threading.Thread.Sleep(1000);
             CloseWindow();
         }
 

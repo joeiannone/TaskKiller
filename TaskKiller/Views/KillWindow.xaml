@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TaskKiller"
         mc:Ignorable="d"
-        Height="450" Width="400">
+        Height="180" Width="400">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>

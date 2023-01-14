@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace TaskKiller.ViewModel.Commands
+namespace TaskKiller.ViewModels.Commands
 {
     public class KillCommand : ICommand
     {
@@ -20,12 +20,16 @@ namespace TaskKiller.ViewModel.Commands
 
         public bool CanExecute(object? parameter)
         {
+            if (VM.process == null)
+            {
+                return false;
+            }
             return true;
         }
 
         public void Execute(object? parameter)
         {
-            VM.process.Kill();
+            VM.KillProcess();
         }
 
     }

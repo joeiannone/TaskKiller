@@ -31,9 +31,21 @@ namespace TaskKiller
 
         private void KillTask_Click(object sender, RoutedEventArgs e)
         {
-            KillWindow killWindow = new KillWindow(Process.GetProcessById((int)((Button)sender).Tag));
+            KillWindow killWindow;
+
+            try
+            {
+                killWindow = new KillWindow(Process.GetProcessById((int)((Button)sender).Tag));
+            }
+            catch (Exception ex)
+            {
+                killWindow = new KillWindow(null);
+            }
+            
             killWindow.Show();
         }
+
+
 
     }
 }

@@ -10,9 +10,14 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using TaskKiller.ViewModel.Commands;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows;
+using TaskKiller.ViewModels.Commands;
+using System.Reflection;
+using System.Linq.Expressions;
 
-namespace TaskKiller.ViewModel
+namespace TaskKiller.ViewModels
 {
     /// <summary>
     /// 
@@ -23,8 +28,8 @@ namespace TaskKiller.ViewModel
         private List<Process> _processes;
         private String _processCount;
         private string _searchString = String.Empty;
-        private bool _sortAsc;
         private string _sortColumn;
+        private ListSortDirection _lastSortDirection;
 
         public SortCommand SortCommand { get; set; }
         
@@ -35,8 +40,8 @@ namespace TaskKiller.ViewModel
         public ProcessesVM()
         {
             UpdateProcesses();
-            sortColumn = "ProcessName";
-            sortAsc = true;
+            sortColumn = "Id";
+            _lastSortDirection = ListSortDirection.Ascending;
             SortCommand = new SortCommand(this);
             
         }
@@ -75,18 +80,6 @@ namespace TaskKiller.ViewModel
             }
         }
 
-        public bool sortAsc 
-        { 
-            get 
-            {
-                return _sortAsc; 
-            } 
-            set 
-            {
-                _sortAsc = value; 
-            } 
-        }
-
         public string sortColumn
         {
             get
@@ -98,10 +91,6 @@ namespace TaskKiller.ViewModel
                 _sortColumn = value;
             }
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
         
 
         public string searchString
@@ -117,25 +106,54 @@ namespace TaskKiller.ViewModel
             }
         }
 
-
-        public void UpdateProcesses()
+        public async void UpdateProcesses()
         {
-            processes = new List<Process>(
-                Process.GetProcesses()
-                .Where(p => p.ProcessName.ToLower().Contains(_searchString.ToLower()) )); /*.OrderBy(p => p.GetType().GetProperty(sortColumn).GetValue(p)).ToList();*/
+            await AsyncUpdateProcesses();
         }
 
-        public void KillProcess(Process process)
+
+        public async Task AsyncUpdateProcesses()
         {
-            //process.
-            process.Kill();
+            PropertyInfo? prop;
+            try
+            {
+                prop = typeof(Process).GetProperty(sortColumn);
+            }
+            catch (ArgumentNullException ex)
+            {
+                prop = null;
+            }
+
+            processes = new List<Process>(Process.GetProcesses()
+                .Where(p => p.ProcessName.ToLower().Contains(_searchString.ToLower()))
+                .OrderBy(p => prop == null ? p.Id : prop.GetValue(p, null)));
         }
+
+
+        public void UpdateSort(string column)
+        {
+            sortColumn = column;
+            if (_lastSortDirection == ListSortDirection.Descending)
+            {
+                _lastSortDirection = ListSortDirection.Ascending;
+            }
+            else
+            {
+                _lastSortDirection = ListSortDirection.Descending;
+            }
+            UpdateProcesses();
+        }
+
+
+
+
 
 
         private void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
 
     }
 }
