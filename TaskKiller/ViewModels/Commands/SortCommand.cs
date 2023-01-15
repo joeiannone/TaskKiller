@@ -32,7 +32,6 @@ namespace TaskKiller.ViewModels.Commands
 
         public void Execute(object? parameter)
         {
-            Debug.WriteLine($"SORT {parameter.ToString()}");
             VM.UpdateSort(parameter.ToString());
         }
     }

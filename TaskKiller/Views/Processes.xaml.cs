@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -24,11 +25,37 @@ namespace TaskKiller
     public partial class Processes : Page
     {
 
+        private Process? _selectedItem;
+        
         public Processes()
         {
             InitializeComponent();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        private int? selectedIndex
+        {
+            get
+            {
+                if (_selectedItem == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    List<Process> itemsSourceProcesses = ListView_Processes.ItemsSource as List<Process>;
+                    return itemsSourceProcesses.IndexOf(itemsSourceProcesses.FirstOrDefault(p => p.Id == _selectedItem.Id));
+                }
+;            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void KillTask_Click(object sender, RoutedEventArgs e)
         {
             KillWindow killWindow;
@@ -45,7 +72,32 @@ namespace TaskKiller
             killWindow.Show();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ListView_Processes_SourceUpdated(object sender, DataTransferEventArgs e)
+        {
+            if (selectedIndex != null)
+            {
+                ListView_Processes.SelectedIndex = (int)selectedIndex;
+            }
+        }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ListView_Processes_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            Process? selectedItem = ListView_Processes.SelectedItem as Process;
+            if (selectedItem != null)
+            {
+                _selectedItem = selectedItem;
+            }
+        }
 
     }
 }

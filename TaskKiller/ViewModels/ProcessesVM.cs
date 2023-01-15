@@ -16,6 +16,7 @@ using System.Windows;
 using TaskKiller.ViewModels.Commands;
 using System.Reflection;
 using System.Linq.Expressions;
+using System.Security.AccessControl;
 
 namespace TaskKiller.ViewModels
 {
@@ -26,7 +27,6 @@ namespace TaskKiller.ViewModels
     {
 
         private List<Process> _processes;
-        private String _processCount;
         private string _searchString = String.Empty;
         private string _sortColumn;
         private ListSortDirection _lastSortDirection;
@@ -38,19 +38,19 @@ namespace TaskKiller.ViewModels
 
 
         public ProcessesVM()
-        {
-            UpdateProcesses();
+        {   
+            // initialize processes
+            processes = new List<Process>(Process.GetProcesses());
+
             sortColumn = "Id";
             _lastSortDirection = ListSortDirection.Ascending;
             SortCommand = new SortCommand(this);
             
-        }
-        public ObservableCollection<string> columns 
-        { 
-            get 
-            { 
-                return new ObservableCollection<string>() { "Id", "ProcessName" }; 
-            } 
+            // update with filters and sort
+            UpdateProcesses();
+            _ = RunInBackground(TimeSpan.FromSeconds(5), () => { UpdateProcesses(); });
+
+
         }
 
 
@@ -66,19 +66,7 @@ namespace TaskKiller.ViewModels
                 OnPropertyChanged(nameof(processes));
             }
         }
-
-        public String processCount
-        {
-            get
-            {
-                return _processCount;
-            }
-            set
-            {
-                _processCount = value;
-                OnPropertyChanged(nameof(processCount));
-            }
-        }
+        
 
         public string sortColumn
         {
@@ -89,6 +77,23 @@ namespace TaskKiller.ViewModels
             set
             {
                 _sortColumn = value;
+                OnPropertyChanged(nameof(sortColumn));
+                OnPropertyChanged(nameof(sortDirectionString));
+            }
+        }
+
+        public string sortDirectionString
+        {
+            get
+            {
+                if (_lastSortDirection == ListSortDirection.Ascending)
+                {
+                    return "ASC";
+                }
+                else
+                {
+                    return "DESC";
+                }
             }
         }
         
@@ -106,13 +111,20 @@ namespace TaskKiller.ViewModels
             }
         }
 
-        public async void UpdateProcesses()
+        async Task RunInBackground(TimeSpan timeSpan, Action action)
         {
-            await AsyncUpdateProcesses();
+            var periodicTimer = new PeriodicTimer(timeSpan);
+            while (await periodicTimer.WaitForNextTickAsync())
+            {
+                action();
+            }
         }
 
 
-        public async Task AsyncUpdateProcesses()
+        
+
+
+        public void UpdateProcesses()
         {
             PropertyInfo? prop;
             try
@@ -123,10 +135,11 @@ namespace TaskKiller.ViewModels
             {
                 prop = null;
             }
-
+            
             processes = new List<Process>(Process.GetProcesses()
                 .Where(p => p.ProcessName.ToLower().Contains(_searchString.ToLower()))
-                .OrderBy(p => prop == null ? p.Id : prop.GetValue(p, null)));
+                .OrderBy(p => prop.GetValue(p, null)));
+
         }
 
 
