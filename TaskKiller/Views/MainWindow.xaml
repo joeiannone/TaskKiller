@@ -8,11 +8,21 @@
         Closing="Window_Closing"
         Title="Task Killer" Height="450" Width="800">
     <Grid>
-        <TabControl>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <TabControl Grid.Row="0">
             <TabItem Header="Processes">
                 <Frame Source="Processes.xaml"/>
             </TabItem>
-            <TabItem Header="About" />
+            <TabItem Header="About">
+                <Frame Source="About.xaml"/>
+            </TabItem>
         </TabControl>
+        <TextBlock x:Name="TextBlock_Version" Grid.Row="1" Margin="7, 2" HorizontalAlignment="Left"/>
     </Grid>
 </Window>

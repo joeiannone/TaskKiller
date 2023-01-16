@@ -78,21 +78,21 @@ namespace TaskKiller.ViewModels
             {
                 _sortColumn = value;
                 OnPropertyChanged(nameof(sortColumn));
-                OnPropertyChanged(nameof(sortDirectionString));
+                OnPropertyChanged(nameof(sortSelectionString));
             }
         }
 
-        public string sortDirectionString
+        public string sortSelectionString
         {
             get
             {
                 if (_lastSortDirection == ListSortDirection.Ascending)
                 {
-                    return "ASC";
+                    return $"{sortColumn} ASC";
                 }
                 else
                 {
-                    return "DESC";
+                    return $"{sortColumn} DESC";
                 }
             }
         }

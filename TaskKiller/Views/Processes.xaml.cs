@@ -62,12 +62,15 @@ namespace TaskKiller
 
             try
             {
+                _selectedItem = Process.GetProcessById((int)((Button)sender).Tag);
+                ListView_Processes.SelectedIndex = (int)selectedIndex;
                 killWindow = new KillWindow(Process.GetProcessById((int)((Button)sender).Tag));
             }
             catch (Exception ex)
             {
                 killWindow = new KillWindow(null);
             }
+            
             
             killWindow.Show();
         }

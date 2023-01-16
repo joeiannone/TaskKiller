@@ -25,15 +25,13 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Width="300" Orientation="Horizontal" HorizontalAlignment="Left">
-            <Label Content="Search"/>
+            <Label Content="Search:"/>
             <TextBox Name="SearchString_TextBox" Text="{Binding searchString, UpdateSourceTrigger=PropertyChanged}" Width="200" Height="20"/>
         </StackPanel>
-        <StackPanel Grid.Row="1" Width="300" Orientation="Horizontal" HorizontalAlignment="Left">
-            <Label Content="Sort Selection:"/>
-            <TextBlock Text="{Binding sortColumn}"/>
-            <TextBlock Text="{Binding sortDirectionString}"/>
+        <StackPanel Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Left">
+            <TextBlock Text="{Binding sortSelectionString, StringFormat={}Sort Selection: {0}}"/>
+            <TextBlock x:Name="ProcessCount" Text="{Binding processes.Count, StringFormat={}Processes: {0}}"/>
         </StackPanel>
-        <TextBlock x:Name="ProcessCount" Grid.Row="3" Text="{Binding processes.Count, StringFormat={}{0} Processes}"/>
         <ListView 
             x:Name="ListView_Processes" 
             ItemsSource="{Binding processes, NotifyOnTargetUpdated=True}" 
