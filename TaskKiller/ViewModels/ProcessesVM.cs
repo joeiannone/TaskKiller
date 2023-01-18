@@ -40,9 +40,9 @@ namespace TaskKiller.ViewModels
         public ProcessesVM()
         {   
             // initialize processes
-            processes = new List<Process>(Process.GetProcesses());
+            _processes = new List<Process>(Process.GetProcesses());
 
-            sortColumn = "Id";
+            _sortColumn = "Id";
             _lastSortDirection = ListSortDirection.Ascending;
             SortCommand = new SortCommand(this);
             
@@ -135,17 +135,35 @@ namespace TaskKiller.ViewModels
             {
                 prop = null;
             }
-            
-            processes = new List<Process>(Process.GetProcesses()
-                .Where(p => p.ProcessName.ToLower().Contains(_searchString.ToLower()))
-                .OrderBy(p => prop.GetValue(p, null)));
+
+            IEnumerable<Process> query;
+
+            if (_lastSortDirection == ListSortDirection.Descending)
+            {
+                query = Process.GetProcesses()
+               .Where(p => p.ProcessName.ToLower().Contains(_searchString.ToLower()))
+               .OrderByDescending(p => prop.GetValue(p, null));
+            }
+            else
+            {
+                query = Process.GetProcesses()
+               .Where(p => p.ProcessName.ToLower().Contains(_searchString.ToLower()))
+               .OrderBy(p => prop.GetValue(p, null));
+            }
+
+            processes = query.ToList<Process>();
+
 
         }
 
 
         public void UpdateSort(string column)
         {
-            sortColumn = column;
+            if (column != _sortColumn)
+            {
+                _lastSortDirection = ListSortDirection.Descending;
+            }
+            
             if (_lastSortDirection == ListSortDirection.Descending)
             {
                 _lastSortDirection = ListSortDirection.Ascending;
@@ -154,6 +172,8 @@ namespace TaskKiller.ViewModels
             {
                 _lastSortDirection = ListSortDirection.Descending;
             }
+
+            sortColumn = column;
             UpdateProcesses();
         }
 
