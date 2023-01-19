@@ -42,9 +42,8 @@ namespace TaskKiller.ViewModels
         {   
             // initialize processes
             _processes = new List<Process>(Process.GetProcesses());
-
-            _sortColumn = "Id";
-            _lastSortDirection = ListSortDirection.Ascending;
+            _sortColumn = "WorkingSet64";
+            _lastSortDirection = ListSortDirection.Descending;
 
             SortCommand = new SortCommand(this);
             ProcessWindowCommand = new ProcessWindowCommand(this);
