@@ -16,8 +16,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using TaskKiller.ViewModels;
 
-namespace TaskKiller
+namespace TaskKiller.Views
 {
     /// <summary>
     /// Interaction logic for Processes.xaml
@@ -49,30 +50,6 @@ namespace TaskKiller
                     return itemsSourceProcesses.IndexOf(itemsSourceProcesses.FirstOrDefault(p => p.Id == _selectedItem.Id));
                 }
 ;            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void KillTask_Click(object sender, RoutedEventArgs e)
-        {
-            KillWindow killWindow;
-
-            try
-            {
-                _selectedItem = Process.GetProcessById((int)((Button)sender).Tag);
-                ListView_Processes.SelectedIndex = (int)selectedIndex;
-                killWindow = new KillWindow(Process.GetProcessById((int)((Button)sender).Tag));
-            }
-            catch (Exception ex)
-            {
-                killWindow = new KillWindow(null);
-            }
-            
-            
-            killWindow.Show();
         }
 
         /// <summary>

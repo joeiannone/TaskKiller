@@ -32,6 +32,7 @@ namespace TaskKiller.ViewModels
         private ListSortDirection _lastSortDirection;
 
         public SortCommand SortCommand { get; set; }
+        public ProcessWindowCommand ProcessWindowCommand { get; set; }
         
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -44,7 +45,9 @@ namespace TaskKiller.ViewModels
 
             _sortColumn = "Id";
             _lastSortDirection = ListSortDirection.Ascending;
+
             SortCommand = new SortCommand(this);
+            ProcessWindowCommand = new ProcessWindowCommand(this);
             
             // update with filters and sort
             UpdateProcesses();

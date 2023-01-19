@@ -14,7 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using TaskKiller.ViewModels;
 
-namespace TaskKiller
+namespace TaskKiller.Views
 {
     /// <summary>
     /// Interaction logic for KillWindow.xaml
