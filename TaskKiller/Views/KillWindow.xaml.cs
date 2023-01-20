@@ -43,7 +43,6 @@ namespace TaskKiller.Views
 
         private void HandleProcessExit(object sender, System.EventArgs e)
         {
-            System.Threading.Thread.Sleep(1000);
             CloseWindow();
         }
 
