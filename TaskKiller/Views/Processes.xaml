@@ -36,7 +36,7 @@
             </Grid.RowDefinitions>
             
             <Label FontWeight="Bold" Content="Search:"/>
-            <TextBox Grid.Column="1" x:Name="SearchString_TextBox" Text="{Binding searchString, UpdateSourceTrigger=PropertyChanged}" Width="Auto" Height="20" MinWidth="200" MaxWidth="250" VerticalContentAlignment="Center"/>
+            <TextBox Grid.Column="1" x:Name="SearchString_TextBox" Text="{Binding searchString,Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}" Width="Auto" Height="20" MinWidth="200" MaxWidth="250" VerticalContentAlignment="Center"/>
             <Label Grid.Row="2" FontWeight="Bold" Content="Sort Selection:"/>
             <TextBlock Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Text="{Binding sortSelectionString, StringFormat={}{0}}"/>
             <Label Grid.Row="3" FontWeight="Bold" Content="Processes:"/>
@@ -57,7 +57,9 @@
                     <GridViewColumn DisplayMemberBinding="{Binding ProcessName}">
                         <GridViewColumnHeader Content="Process Name" Command="{Binding SortCommand}" CommandParameter="ProcessName"/>
                     </GridViewColumn>
+                    <!--
                     <GridViewColumn DisplayMemberBinding="{Binding MainModule.ModuleName}" Width="180" Header="Module" />
+                    -->
                     <!--<GridViewColumn DisplayMemberBinding="{Binding PriorityClass, FallbackValue='Access denied'}">
                         <GridViewColumnHeader Content="Priority Class"/>
                     </GridViewColumn>-->

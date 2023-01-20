@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:TaskKiller.Views"
         mc:Ignorable="d"
         Height="180" Width="400" ResizeMode="NoResize">
-    <Grid Margin="20">
+    <Grid Margin="0" Width="300" VerticalAlignment="Center" HorizontalAlignment="Center">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
@@ -19,7 +19,7 @@
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding process.Id}"/>
         <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding process.ProcessName}"/>
-        <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding process.MainWindowTitle}"/>
+        <TextBlock Grid.Row="2" TextWrapping="Wrap" Grid.Column="0" Text="{Binding process.MainWindowTitle}"/>
         <Button 
             Content="Kill Process"
             Command="{Binding KillCommand}"
