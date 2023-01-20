@@ -28,7 +28,7 @@ namespace TaskKiller.Views
             try
             {
                 Debug.WriteLine(typeof(Process).GetProperty("Id").GetValue(process, null));
-                this.Title = $"Kill {process.Id} - {process.ProcessName}";
+                this.Title = $"Process ({process.Id}) - {process.ProcessName}";
                 this.DataContext = new ProcessVM { process = process };
                 process.EnableRaisingEvents = true;
                 process.Exited += new EventHandler(HandleProcessExit);

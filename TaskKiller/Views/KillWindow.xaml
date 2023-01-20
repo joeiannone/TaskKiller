@@ -5,23 +5,30 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TaskKiller.Views"
         mc:Ignorable="d"
-        Height="180" Width="400">
-    <Grid>
+        Height="180" Width="400" ResizeMode="NoResize">
+    <Grid Margin="20">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <TextBlock Grid.Row="1" Text="{Binding process.Id}"/>
-        <TextBlock Grid.Row="2" Text="{Binding process.ProcessName}"/>
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding process.Id}"/>
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding process.ProcessName}"/>
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding process.MainWindowTitle}"/>
         <Button 
             Content="Kill Process"
             Command="{Binding KillCommand}"
+            Grid.Column="0"
             Grid.Row="3"
-            Width="200"/>
+            Width="100"
+            Padding="2"
+            Margin="0, 15"
+            VerticalAlignment="Bottom"
+            HorizontalAlignment="Left"/>
     </Grid>
 </Window>

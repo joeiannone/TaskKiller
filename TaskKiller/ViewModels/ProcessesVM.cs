@@ -90,11 +90,11 @@ namespace TaskKiller.ViewModels
             {
                 if (_lastSortDirection == ListSortDirection.Ascending)
                 {
-                    return $"{sortColumn} ASC";
+                    return $"{sortColumn} [ASC]";
                 }
                 else
                 {
-                    return $"{sortColumn} DESC";
+                    return $"{sortColumn} [DESC]";
                 }
             }
         }
@@ -143,7 +143,11 @@ namespace TaskKiller.ViewModels
             if (_lastSortDirection == ListSortDirection.Descending)
             {
                 query = Process.GetProcesses()
-               .Where(p => p.ProcessName.ToLower().Contains(_searchString.ToLower()))
+               .Where(p => 
+               p.ProcessName.ToLower().Contains(_searchString.ToLower().Trim()) || 
+               p.MainWindowTitle.ToLower().Contains(_searchString.ToLower().Trim()) ||
+               p.Id.ToString().StartsWith(_searchString.ToLower())
+               )
                .OrderByDescending(p => prop.GetValue(p, null));
             }
             else
