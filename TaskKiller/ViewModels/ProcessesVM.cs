@@ -30,11 +30,12 @@ namespace TaskKiller.ViewModels
         private string _searchString = String.Empty;
         private string _sortColumn;
         private ListSortDirection _lastSortDirection;
+        private Thread SearchThread;
+        private bool _updateProcesses = false;
 
         public SortCommand SortCommand { get; set; }
         public ProcessWindowCommand ProcessWindowCommand { get; set; }
         
-
         public event PropertyChangedEventHandler? PropertyChanged;
 
 
@@ -47,8 +48,22 @@ namespace TaskKiller.ViewModels
 
             SortCommand = new SortCommand(this);
             ProcessWindowCommand = new ProcessWindowCommand(this);
-            
-            _ = RunInBackground(TimeSpan.FromSeconds(5), () => { UpdateProcesses(); });
+
+            SearchThread = new Thread(() =>
+            {
+                while (true)
+                {
+                    if (_updateProcesses)
+                    {
+                        UpdateProcesses();
+                        _updateProcesses = false;
+                    }
+                }
+                
+            });
+            SearchThread.Start();
+
+            _ = RunInBackground(TimeSpan.FromSeconds(5), () => { _updateProcesses = true; });
 
         }
 
@@ -106,7 +121,7 @@ namespace TaskKiller.ViewModels
             set
             {
                 _searchString = value;
-                UpdateProcesses();
+                _updateProcesses = true;
             }
         }
 
@@ -121,39 +136,37 @@ namespace TaskKiller.ViewModels
 
         private void UpdateProcesses()
         {
-            Thread searchThread = new Thread(() =>
+            
+            PropertyInfo? prop;
+            try
             {
-                PropertyInfo? prop;
-                try
-                {
-                    prop = typeof(Process).GetProperty(sortColumn);
-                }
-                catch (ArgumentNullException ex)
-                {
-                    prop = null;
-                }
+                prop = typeof(Process).GetProperty(sortColumn);
+            }
+            catch (ArgumentNullException ex)
+            {
+                prop = null;
+            }
 
-                IEnumerable<Process> query;
+            IEnumerable<Process> query;
 
-                if (_lastSortDirection == ListSortDirection.Descending)
-                {
-                    query = Process.GetProcesses()
-                   .Where(p =>
-                   p.ProcessName.ToLower().Contains(_searchString.ToLower().Trim()) ||
-                   p.MainWindowTitle.ToLower().Contains(_searchString.ToLower().Trim()) ||
-                   p.Id.ToString().StartsWith(_searchString.ToLower())
-                   )
-                   .OrderByDescending(p => prop.GetValue(p, null));
-                }
-                else
-                {
-                    query = Process.GetProcesses()
-                   .Where(p => p.ProcessName.ToLower().Contains(_searchString.ToLower()))
-                   .OrderBy(p => prop.GetValue(p, null));
-                }
-                processes = query.ToList<Process>();
-            });
-            searchThread.Start();
+            if (_lastSortDirection == ListSortDirection.Descending)
+            {
+                query = Process.GetProcesses()
+                .Where(p =>
+                p.ProcessName.ToLower().Contains(_searchString.ToLower().Trim()) ||
+                p.MainWindowTitle.ToLower().Contains(_searchString.ToLower().Trim()) ||
+                p.Id.ToString().StartsWith(_searchString.ToLower())
+                )
+                .OrderByDescending(p => prop.GetValue(p, null));
+            }
+            else
+            {
+                query = Process.GetProcesses()
+                .Where(p => p.ProcessName.ToLower().Contains(_searchString.ToLower()))
+                .OrderBy(p => prop.GetValue(p, null));
+            }
+            processes = query.ToList<Process>();
+            
         }
 
 
@@ -175,7 +188,7 @@ namespace TaskKiller.ViewModels
 
             sortColumn = column;
 
-            UpdateProcesses();
+            _updateProcesses = true;
         }
 
 
