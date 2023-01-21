@@ -8,9 +8,11 @@
       d:DesignHeight="450" d:DesignWidth="800"
       Title="About">
 
-    <Grid>
-        <StackPanel>
-            <TextBlock x:Name="TextBlock_AboutVersion"/>
+    <Grid Margin="10">
+        <StackPanel MaxWidth="400" VerticalAlignment="Center">
+            <TextBlock FontWeight="Bold" x:Name="TextBlock_AboutVersion"/>
+            <TextBlock FontStyle="Italic" Margin="0,20" TextWrapping="Wrap"  Text="Task Killer is a Desktop tool that can be used to query, sort, and manage running processes on a system."/>
+            <TextBlock Margin="0,0" TextWrapping="Wrap" Text="All running processes are displayed in a list. Processes can be filtered by text by inputting into the 'Search' TextBox which will filter processes by process Id, process Name, and Main Module window name. Processes can be sorted by process Id, Process name, or Memory working set in ascending or descending order by clicking on the respective column header. A process can be killed by clicking the respective 'Details' button to open the process window, then by clicking the 'Kill Process' button."/>
         </StackPanel>
     </Grid>
 </Page>

@@ -12,18 +12,24 @@ namespace TaskKiller.Views.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            long bytes = (long)value;
+            decimal bytes = (long)value;
+            decimal result;
 
             switch (parameter.ToString())
             {
                 case "MB":
-                    return bytes / 1000000;
+                    result = bytes / 1000000;
+                    break;
                 case "KB":
-                    return bytes / 100;
+                    result = bytes / 100;
+                    break;
                 default:
-                    return bytes;
+                    result = bytes;
+                    break;
 
             }
+
+            return result.ToString("F");
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

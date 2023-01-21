@@ -32,6 +32,7 @@ namespace TaskKiller.ViewModels
         private ListSortDirection _lastSortDirection;
 
         public SortCommand SortCommand { get; set; }
+        public ProcessWindowCommand ProcessWindowCommand { get; set; }
         
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -40,16 +41,14 @@ namespace TaskKiller.ViewModels
         public ProcessesVM()
         {   
             // initialize processes
-            processes = new List<Process>(Process.GetProcesses());
+            _processes = new List<Process>(Process.GetProcesses());
+            _sortColumn = "WorkingSet64";
+            _lastSortDirection = ListSortDirection.Descending;
 
-            sortColumn = "Id";
-            _lastSortDirection = ListSortDirection.Ascending;
             SortCommand = new SortCommand(this);
+            ProcessWindowCommand = new ProcessWindowCommand(this);
             
-            // update with filters and sort
-            UpdateProcesses();
             _ = RunInBackground(TimeSpan.FromSeconds(5), () => { UpdateProcesses(); });
-
 
         }
 
@@ -88,11 +87,11 @@ namespace TaskKiller.ViewModels
             {
                 if (_lastSortDirection == ListSortDirection.Ascending)
                 {
-                    return $"{sortColumn} ASC";
+                    return $"{sortColumn} [ASC]";
                 }
                 else
                 {
-                    return $"{sortColumn} DESC";
+                    return $"{sortColumn} [DESC]";
                 }
             }
         }
@@ -120,32 +119,51 @@ namespace TaskKiller.ViewModels
             }
         }
 
-
-        
-
-
-        public void UpdateProcesses()
+        private void UpdateProcesses()
         {
-            PropertyInfo? prop;
-            try
+            Thread searchThread = new Thread(() =>
             {
-                prop = typeof(Process).GetProperty(sortColumn);
-            }
-            catch (ArgumentNullException ex)
-            {
-                prop = null;
-            }
-            
-            processes = new List<Process>(Process.GetProcesses()
-                .Where(p => p.ProcessName.ToLower().Contains(_searchString.ToLower()))
-                .OrderBy(p => prop.GetValue(p, null)));
+                PropertyInfo? prop;
+                try
+                {
+                    prop = typeof(Process).GetProperty(sortColumn);
+                }
+                catch (ArgumentNullException ex)
+                {
+                    prop = null;
+                }
 
+                IEnumerable<Process> query;
+
+                if (_lastSortDirection == ListSortDirection.Descending)
+                {
+                    query = Process.GetProcesses()
+                   .Where(p =>
+                   p.ProcessName.ToLower().Contains(_searchString.ToLower().Trim()) ||
+                   p.MainWindowTitle.ToLower().Contains(_searchString.ToLower().Trim()) ||
+                   p.Id.ToString().StartsWith(_searchString.ToLower())
+                   )
+                   .OrderByDescending(p => prop.GetValue(p, null));
+                }
+                else
+                {
+                    query = Process.GetProcesses()
+                   .Where(p => p.ProcessName.ToLower().Contains(_searchString.ToLower()))
+                   .OrderBy(p => prop.GetValue(p, null));
+                }
+                processes = query.ToList<Process>();
+            });
+            searchThread.Start();
         }
 
 
         public void UpdateSort(string column)
         {
-            sortColumn = column;
+            if (column != _sortColumn)
+            {
+                _lastSortDirection = ListSortDirection.Descending;
+            }
+            
             if (_lastSortDirection == ListSortDirection.Descending)
             {
                 _lastSortDirection = ListSortDirection.Ascending;
@@ -154,6 +172,9 @@ namespace TaskKiller.ViewModels
             {
                 _lastSortDirection = ListSortDirection.Descending;
             }
+
+            sortColumn = column;
+
             UpdateProcesses();
         }
 
