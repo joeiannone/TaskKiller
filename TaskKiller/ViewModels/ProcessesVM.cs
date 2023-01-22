@@ -165,7 +165,13 @@ namespace TaskKiller.ViewModels
                 .Where(p => p.ProcessName.ToLower().Contains(_searchString.ToLower()))
                 .OrderBy(p => prop.GetValue(p, null));
             }
-            processes = query.ToList<Process>();
+
+
+            lock (processes)
+            {
+                processes = query.ToList<Process>();
+            }
+            
             
         }
 
