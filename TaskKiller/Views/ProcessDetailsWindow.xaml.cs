@@ -8,13 +8,13 @@ namespace TaskKiller.Views
     /// <summary>
     /// Interaction logic for KillWindow.xaml
     /// </summary>
-    public partial class KillWindow : Window
+    public partial class ProcessDetailsWindow : Window
     {
         /// <summary>
         /// 
         /// </summary>
         /// <param name="process"></param>
-        public KillWindow(Process? process)
+        public ProcessDetailsWindow(Process? process)
         {
             InitializeComponent();
 

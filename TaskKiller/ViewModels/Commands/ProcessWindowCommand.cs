@@ -49,7 +49,7 @@ namespace TaskKiller.ViewModels.Commands
         /// <param name="parameter"></param>
         public void Execute(object? parameter)
         {
-            var processWindow = new KillWindow((Process?)parameter);
+            var processWindow = new ProcessDetailsWindow((Process?)parameter);
             processWindow.Show();
         }
     }
