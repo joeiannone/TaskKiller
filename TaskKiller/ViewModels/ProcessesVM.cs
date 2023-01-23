@@ -1,22 +1,12 @@
-﻿using Microsoft.VisualBasic;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows;
 using TaskKiller.ViewModels.Commands;
 using System.Reflection;
-using System.Linq.Expressions;
-using System.Security.AccessControl;
 
 namespace TaskKiller.ViewModels
 {
@@ -38,7 +28,9 @@ namespace TaskKiller.ViewModels
         
         public event PropertyChangedEventHandler? PropertyChanged;
 
-
+        /// <summary>
+        /// 
+        /// </summary>
         public ProcessesVM()
         {   
             // initialize processes
@@ -67,7 +59,9 @@ namespace TaskKiller.ViewModels
 
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
         public List<Process> processes
         {
             get
@@ -81,7 +75,9 @@ namespace TaskKiller.ViewModels
             }
         }
         
-
+        /// <summary>
+        /// 
+        /// </summary>
         public string sortColumn
         {
             get
@@ -96,6 +92,9 @@ namespace TaskKiller.ViewModels
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public string sortSelectionString
         {
             get
@@ -111,7 +110,9 @@ namespace TaskKiller.ViewModels
             }
         }
         
-
+        /// <summary>
+        /// 
+        /// </summary>
         public string searchString
         {
             get
@@ -125,7 +126,14 @@ namespace TaskKiller.ViewModels
             }
         }
 
-        async Task RunInBackground(TimeSpan timeSpan, Action action)
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="timeSpan"></param>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        private async Task RunInBackground(TimeSpan timeSpan, Action action)
         {
             var periodicTimer = new PeriodicTimer(timeSpan);
             while (await periodicTimer.WaitForNextTickAsync())
@@ -134,6 +142,9 @@ namespace TaskKiller.ViewModels
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void UpdateProcesses()
         {
             
@@ -176,6 +187,10 @@ namespace TaskKiller.ViewModels
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="column"></param>
         public void UpdateSort(string column)
         {
             if (column != _sortColumn)
@@ -196,10 +211,6 @@ namespace TaskKiller.ViewModels
 
             _updateProcesses = true;
         }
-
-
-
-
 
 
         private void OnPropertyChanged(string propertyName)
