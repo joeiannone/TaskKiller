@@ -20,8 +20,10 @@ namespace TaskKiller.ViewModels
         private string _searchString = String.Empty;
         private string _sortColumn;
         private ListSortDirection _lastSortDirection;
-        private Thread SearchThread;
-        private bool _updateProcesses = false;
+        private Thread UpdateProcessesThread;
+        private Thread SignalAutoUpdateThread;
+        private bool _updateProcessesFlag = false;
+        private readonly int _autoUpdateSeconds = 5;
 
         public SortCommand SortCommand { get; set; }
         public ProcessWindowCommand ProcessWindowCommand { get; set; }
@@ -34,28 +36,46 @@ namespace TaskKiller.ViewModels
         public ProcessesVM()
         {   
             // initialize processes
-            _processes = new List<Process>(Process.GetProcesses());
+            _processes = new List<Process>();
             _sortColumn = "WorkingSet64";
             _lastSortDirection = ListSortDirection.Descending;
 
             SortCommand = new SortCommand(this);
             ProcessWindowCommand = new ProcessWindowCommand(this);
 
-            SearchThread = new Thread(() =>
+
+            /**
+             * Start a new thread to handle requests to update 'processes'
+             * signaled with the '_updateProcessesFlag'
+             */
+            _updateProcessesFlag = true;
+            UpdateProcessesThread = new Thread(() =>
             {
                 while (true)
                 {
-                    if (_updateProcesses)
+                    if (_updateProcessesFlag)
                     {
                         UpdateProcesses();
-                        _updateProcesses = false;
+                        _updateProcessesFlag = false;
                     }
                 }
                 
             });
-            SearchThread.Start();
+            UpdateProcessesThread.Start();
 
-            _ = RunInBackground(TimeSpan.FromSeconds(5), () => { _updateProcesses = true; });
+
+            /**
+             * A separate thread to signal to update processes every n (_autoUpdateSeconds) seconds
+             */
+            SignalAutoUpdateThread = new Thread(async () =>
+            {
+                PeriodicTimer periodicTimer = new PeriodicTimer(TimeSpan.FromSeconds(_autoUpdateSeconds));
+                while (await periodicTimer.WaitForNextTickAsync())
+                {
+                    _updateProcessesFlag = true;
+                }
+            });
+            SignalAutoUpdateThread.Start();
 
         }
 
@@ -122,23 +142,7 @@ namespace TaskKiller.ViewModels
             set
             {
                 _searchString = value;
-                _updateProcesses = true;
-            }
-        }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="timeSpan"></param>
-        /// <param name="action"></param>
-        /// <returns></returns>
-        private async Task RunInBackground(TimeSpan timeSpan, Action action)
-        {
-            var periodicTimer = new PeriodicTimer(timeSpan);
-            while (await periodicTimer.WaitForNextTickAsync())
-            {
-                action();
+                _updateProcessesFlag = true;
             }
         }
 
@@ -209,7 +213,7 @@ namespace TaskKiller.ViewModels
 
             sortColumn = column;
 
-            _updateProcesses = true;
+            _updateProcessesFlag = true;
         }
 
 
