@@ -1,17 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using TaskKiller.ViewModels;
 
 namespace TaskKiller.Views
@@ -21,15 +10,21 @@ namespace TaskKiller.Views
     /// </summary>
     public partial class KillWindow : Window
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="process"></param>
         public KillWindow(Process? process)
         {
             InitializeComponent();
 
             try
             {
-                Debug.WriteLine(typeof(Process).GetProperty("Id").GetValue(process, null));
+                // try to set window title and data context for window
                 this.Title = $"Process ({process.Id}) - {process.ProcessName}";
                 this.DataContext = new ProcessVM { process = process };
+
+                // try to create event handler to handle closing the window when the process exits
                 process.EnableRaisingEvents = true;
                 process.Exited += new EventHandler(HandleProcessExit);
             }
@@ -41,11 +36,19 @@ namespace TaskKiller.Views
             
         }
 
-        private void HandleProcessExit(object sender, System.EventArgs e)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void HandleProcessExit(object? sender, System.EventArgs e)
         {
             CloseWindow();
         }
 
+        /// <summary>
+        /// Close this window
+        /// </summary>
         private void CloseWindow()
         {
             this.Dispatcher.Invoke(() =>
