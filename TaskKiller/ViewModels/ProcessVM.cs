@@ -9,6 +9,9 @@ using TaskKiller.ViewModels.Commands;
 
 namespace TaskKiller.ViewModels
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class ProcessVM : INotifyPropertyChanged
     {
 
@@ -16,11 +19,17 @@ namespace TaskKiller.ViewModels
         public event PropertyChangedEventHandler? PropertyChanged;
         public KillCommand KillCommand { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public ProcessVM() 
         {
             KillCommand = new KillCommand(this);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public Process? process { 
             get 
             {
@@ -33,28 +42,16 @@ namespace TaskKiller.ViewModels
             }
         }
 
-
-        public event EventHandler ProcessKilled;
-
-        public virtual void OnProcessKilled(object sender, EventArgs e)
-        {
-            ProcessKilled?.Invoke(this, e);
-        }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public void KillProcess()
         {
             if (process != null)
             {
-                //process.
-                process.Kill();
-                //process.Exited += new EventHandler(OnProcessKilled);
-                
+                process.Kill();   
             }
-            
         }
-
-
-
 
 
         private void OnPropertyChanged(string propertyName)

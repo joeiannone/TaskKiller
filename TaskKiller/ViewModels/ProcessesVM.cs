@@ -1,22 +1,12 @@
-﻿using Microsoft.VisualBasic;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows;
 using TaskKiller.ViewModels.Commands;
 using System.Reflection;
-using System.Linq.Expressions;
-using System.Security.AccessControl;
 
 namespace TaskKiller.ViewModels
 {
@@ -30,29 +20,68 @@ namespace TaskKiller.ViewModels
         private string _searchString = String.Empty;
         private string _sortColumn;
         private ListSortDirection _lastSortDirection;
+        private Thread UpdateProcessesThread;
+        private Thread SignalAutoUpdateThread;
+        private bool _updateProcessesFlag = false;
+        private readonly int _autoUpdateSeconds = 5;
 
         public SortCommand SortCommand { get; set; }
         public ProcessWindowCommand ProcessWindowCommand { get; set; }
         
-
         public event PropertyChangedEventHandler? PropertyChanged;
 
-
+        /// <summary>
+        /// 
+        /// </summary>
         public ProcessesVM()
         {   
             // initialize processes
-            _processes = new List<Process>(Process.GetProcesses());
+            _processes = new List<Process>();
             _sortColumn = "WorkingSet64";
             _lastSortDirection = ListSortDirection.Descending;
 
             SortCommand = new SortCommand(this);
             ProcessWindowCommand = new ProcessWindowCommand(this);
-            
-            _ = RunInBackground(TimeSpan.FromSeconds(5), () => { UpdateProcesses(); });
+
+
+            /**
+             * Start a new thread to handle requests to update 'processes'
+             * signaled with the '_updateProcessesFlag'
+             */
+            _updateProcessesFlag = true;
+            UpdateProcessesThread = new Thread(() =>
+            {
+                while (true)
+                {
+                    if (_updateProcessesFlag)
+                    {
+                        UpdateProcesses();
+                        _updateProcessesFlag = false;
+                    }
+                }
+                
+            });
+            UpdateProcessesThread.Start();
+
+
+            /**
+             * A separate thread to signal to update processes every n (_autoUpdateSeconds) seconds
+             */
+            SignalAutoUpdateThread = new Thread(async () =>
+            {
+                PeriodicTimer periodicTimer = new PeriodicTimer(TimeSpan.FromSeconds(_autoUpdateSeconds));
+                while (await periodicTimer.WaitForNextTickAsync())
+                {
+                    _updateProcessesFlag = true;
+                }
+            });
+            SignalAutoUpdateThread.Start();
 
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
         public List<Process> processes
         {
             get
@@ -66,7 +95,9 @@ namespace TaskKiller.ViewModels
             }
         }
         
-
+        /// <summary>
+        /// 
+        /// </summary>
         public string sortColumn
         {
             get
@@ -81,6 +112,9 @@ namespace TaskKiller.ViewModels
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public string sortSelectionString
         {
             get
@@ -96,7 +130,9 @@ namespace TaskKiller.ViewModels
             }
         }
         
-
+        /// <summary>
+        /// 
+        /// </summary>
         public string searchString
         {
             get
@@ -106,57 +142,59 @@ namespace TaskKiller.ViewModels
             set
             {
                 _searchString = value;
-                UpdateProcesses();
+                _updateProcessesFlag = true;
             }
         }
 
-        async Task RunInBackground(TimeSpan timeSpan, Action action)
-        {
-            var periodicTimer = new PeriodicTimer(timeSpan);
-            while (await periodicTimer.WaitForNextTickAsync())
-            {
-                action();
-            }
-        }
-
+        /// <summary>
+        /// 
+        /// </summary>
         private void UpdateProcesses()
         {
-            Thread searchThread = new Thread(() =>
+            
+            PropertyInfo? prop;
+            try
             {
-                PropertyInfo? prop;
-                try
-                {
-                    prop = typeof(Process).GetProperty(sortColumn);
-                }
-                catch (ArgumentNullException ex)
-                {
-                    prop = null;
-                }
+                prop = typeof(Process).GetProperty(sortColumn);
+            }
+            catch (ArgumentNullException ex)
+            {
+                prop = null;
+            }
 
-                IEnumerable<Process> query;
+            IEnumerable<Process> query;
 
-                if (_lastSortDirection == ListSortDirection.Descending)
-                {
-                    query = Process.GetProcesses()
-                   .Where(p =>
-                   p.ProcessName.ToLower().Contains(_searchString.ToLower().Trim()) ||
-                   p.MainWindowTitle.ToLower().Contains(_searchString.ToLower().Trim()) ||
-                   p.Id.ToString().StartsWith(_searchString.ToLower())
-                   )
-                   .OrderByDescending(p => prop.GetValue(p, null));
-                }
-                else
-                {
-                    query = Process.GetProcesses()
-                   .Where(p => p.ProcessName.ToLower().Contains(_searchString.ToLower()))
-                   .OrderBy(p => prop.GetValue(p, null));
-                }
+            if (_lastSortDirection == ListSortDirection.Descending)
+            {
+                query = Process.GetProcesses()
+                .Where(p =>
+                p.ProcessName.ToLower().Contains(_searchString.ToLower().Trim()) ||
+                p.MainWindowTitle.ToLower().Contains(_searchString.ToLower().Trim()) ||
+                p.Id.ToString().StartsWith(_searchString.ToLower())
+                )
+                .OrderByDescending(p => prop.GetValue(p, null));
+            }
+            else
+            {
+                query = Process.GetProcesses()
+                .Where(p => p.ProcessName.ToLower().Contains(_searchString.ToLower()))
+                .OrderBy(p => prop.GetValue(p, null));
+            }
+
+
+            lock (processes)
+            {
                 processes = query.ToList<Process>();
-            });
-            searchThread.Start();
+            }
+            
+            
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="column"></param>
         public void UpdateSort(string column)
         {
             if (column != _sortColumn)
@@ -175,12 +213,8 @@ namespace TaskKiller.ViewModels
 
             sortColumn = column;
 
-            UpdateProcesses();
+            _updateProcessesFlag = true;
         }
-
-
-
-
 
 
         private void OnPropertyChanged(string propertyName)
